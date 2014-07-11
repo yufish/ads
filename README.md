@@ -15,3 +15,8 @@ npm install
 node app.js 即可启动服务。
 
 用less管理样式，用jade管理demo。
+
+
+###具体使用？
+
+用来管理样式和demo。跑起来后就不用重启，然后用nginx把域名指向到此端口，本地和测试服务器都可以跑，开发的时候用host切换即可。
