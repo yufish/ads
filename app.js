@@ -1,30 +1,19 @@
 /**
  * Created by tianqi on 14-7-11.
  */
-var app, config, express, expressUglify, fs, http, less, lessmiddle, log4js, logger, path, rainbow;
 
-express = require('express');
 
-http = require('http');
 
-path = require('path');
 
-config = global.__CONFIG = require('./config.js');
 
-var requirejs_combo = require("./util/requirejs-combo.js")
-var less_compile = require("./util/less-compile.js");
-var queuedo = require("queuedo");
+var config = global.__CONFIG = require('./config.js');
 var content_type_inspector = require("./util/content-type-inspector.js")
-var js_compile = require("./util/js-compile.js");
-lessmiddle = require('./libs/less-middleware/lib/middleware.js');
+var lessmiddle = require('./libs/less-middleware/lib/middleware.js');
 
-less = require('less');
-
-fs = require('fs');
-
-expressUglify = require('express-uglify');
-
-app = express();
+var fs = require('fs');
+var path = require('path');
+var express = require('express');
+var app = express();
 
 app.configure(function() {
     app.set("port", config.run_port);
@@ -36,93 +25,27 @@ app.configure(function() {
         compress: false,
         force: true
     }));
-    //http://f2e.souche.com/assets/$$js/index.js,css/index.css
-    app.get(/\/assets\/(.*?)\$\$(.*)$/, function(req, res, next) {
-        var _path = req.params[0]
-        var files = req.params[1].split(",");
-        var str = "";
-        queuedo(files, function(file, next, context) {
-            var filePath = path.join(config.assets_path, _path, file);
-            var fileContent = "";
-            var extname = path.extname(filePath)
-            if (extname == ".css") {
-                var lessFilePath = filePath.replace(/\.css$/, ".less");
-                if (fs.existsSync(lessFilePath)) {
-                    fileContent = less_compile(lessFilePath, function(error, lessContent) {
 
-                        str += lessContent + "\n"
-                        next.call(context);
-                    })
-                    return;
-                } else {
-                    if (config.compress && extname == ".js") {
-                        fileContent = js_compile(filePath);
-                    } else {
-                        fileContent = fs.readFileSync(filePath, "utf-8")
-                    }
-                }
-            } else {
-                if (config.compress && extname == ".js") {
-                    fileContent = js_compile(filePath);
-                } else {
-                    fileContent = fs.readFileSync(filePath, "utf-8")
-                }
-            }
-            str += fileContent + "\n"
-            next.call(context);
-        }, function() {
-            res.header('Content-Type', content_type_inspector(files));
-            res.send(str);
+    //combo service 多个文件合并
+    //like this : http://f2e.souche.com/assets/$$js/index.js,css/index.css
+    app.get(/\/assets\/(.*?)\$\$(.*)$/, require("./routes/combo_route.js"));
 
-        })
+    //requirejs 实时打包
+    app.get(/\/assets\/js\/(.*?)\.r\.js/, require("./routes/require_route.js"));
 
+    //js 静态服务，支持压缩
+    //
+    app.get(/assets\/js\/(.*?)\.js/, require("./routes/js_route.js"));
 
-    });
-    app.get(/\/assets\/js\/(.*?)\.r\.js/, function(req, res, next) {
-        var _path = req.params[0]
-        requirejs_combo(config.assets_path + "/js/" + _path + ".rjs", function(e, data) {
-            var filePath = path.join(config.assets_path, "/js", _path + ".r.js");
-            console.log("js:" + filePath)
-            res.sendfile(filePath)
-        })
-    });
-
-    app.get(/assets\/js\/(.*?)\.js/, function(req, res, next) {
-        var _path = req.params[0]
-
-        var filePath = path.join(config.assets_path, "/js", _path + ".js");
-        if (config.compress) {
-            fileContent = js_compile(filePath);
-        } else {
-            fileContent = fs.readFileSync(filePath, "utf-8")
-        }
-        res.header('Content-Type', content_type_inspector(filePath));
-        res.send(fileContent);
-    });
+    //其他文件的静态服务
     app.get(/assets\/(.*)$/, function(req, res, next) {
         var _path = req.params[0]
         var filePath = path.join(config.assets_path, _path);
         res.sendfile(filePath)
     });
-    app.get(/^\/demo\/(.*)$/, function(req, res, next) {
-        var _path;
-        console.log(req.params[0]);
-        res.locals.query = req.query;
-        _path = path.join(config.demo_path, req.params[0] + ".jade");
-        if (fs.existsSync(_path)) {
-            return res.render(config.demo_path + req.params[0] + ".jade", {
-                pretty: true
-            });
-        } else {
-            return fs.readFile(path.join(config.demo_path, req.params[0]), 'utf-8', function(error, content) {
-                if (error) {
-                    return next(error);
-                } else {
-                    return res.send(content);
-                }
-            });
-        }
-    });
+
+    //demo服务，支持jade和普通的html
+    app.get(/^\/demo\/(.*)$/, require("./routes/demo_route.js"));
 
     app.locals.pretty = true;
     app.all("*", function(req, res, next) {

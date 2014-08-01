@@ -24,6 +24,7 @@
     "less-middleware": "~0.1.15",
     "mime": "^1.2.11",
     "moment": "^2.7.0",
+    "queuedo": "^0.9.8",
     "uglify-js": "^2.4.15"
   }
 }

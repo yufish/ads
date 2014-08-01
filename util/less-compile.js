@@ -5,7 +5,9 @@ var config = require("./../config.js")
 
 module.exports = function(filePath, callback) {
     var parser = new(less.Parser)({
-        paths: [path.dirname(filePath)] // Specify search paths for @import directives
+        paths: [path.dirname(filePath)], // Specify search paths for @import directives
+        compress: false,
+        force: true
     });
     parser.parse(fs.readFileSync(filePath, "utf-8"), function(e, tree) {
         if (e) {
