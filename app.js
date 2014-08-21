@@ -14,12 +14,28 @@ var fs = require('fs');
 var path = require('path');
 var express = require('express');
 var app = express();
-
+var log4js = require('log4js');
 app.configure(function() {
+    // app.disable('etag')
     app.set("port", config.run_port);
     app.set("views", config.demo_path);
     app.set("view engine", "jade");
     app.use(express.favicon());
+    //日志支持
+    log4js.configure({
+        appenders: [{
+            type: 'console'
+        }]
+    });
+    logger = log4js.getLogger('normal');
+    logger.setLevel('INFO');
+    app.use(log4js.connectLogger(logger, {
+        level: log4js.levels.INFO
+    }));
+    app.use(function(req, res, next) {
+        res.header("Cache-Control", "max-age=2592000")
+        next();
+    })
     app.use("/assets", lessmiddle({
         src: config.assets_path,
         compress: false,

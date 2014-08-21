@@ -6,5 +6,5 @@ module.exports = {
     assets_path: "/Users/tianqi/Documents/souche-assets/souche-f2e-new/assets/",
     demo_path: "/Users/tianqi/Documents/souche-assets/souche-f2e-new/demo/",
     less_path: "/Users/tianqi/Documents/souche-assets/souche-f2e-new/less/",
-    compress: true
+    compress: false
 };
