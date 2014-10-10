@@ -57,6 +57,9 @@ app.configure(function() {
     app.get(/assets\/(.*)$/, function(req, res, next) {
         var _path = req.params[0]
         var filePath = path.join(config.assets_path, _path);
+        // var fileContent = fs.readFileSync(filePath, "utf-8")
+        // res.header('Content-Type', content_type_inspector(filePath));
+        // res.send(fileContent);
         res.sendfile(filePath)
     });
 

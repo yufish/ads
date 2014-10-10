@@ -1,6 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var config = require("./../config.js");
+var jade = require('jade');
  module.exports = function(req, res, next) {
      var _path;
      console.log(req.params[0]);
@@ -15,6 +16,16 @@ var config = require("./../config.js");
              if (error) {
                  return next(error);
              } else {
+                 content=content.replace(/\{\{include (.+?)\.jade\}\}/g,function(r,r2){
+                     var filename = path.join(path.dirname(path.join(config.demo_path, req.params[0])),r2+".jade");
+                     var html = jade.render(fs.readFileSync(filename,'utf-8'), {filename:filename});
+                     return html
+                  })
+                 content=content.replace(/\{\{include (.+?)\.html\}\}/g,function(r,r2){
+                     var filename = path.join(path.dirname(path.join(config.demo_path, req.params[0])),r2+".html");
+                     var html =fs.readFileSync(filename,'utf-8');
+                     return html
+                 })
                  return res.send(content);
              }
          });
