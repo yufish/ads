@@ -18,7 +18,7 @@ var jade = require('jade');
              } else {
                  content=content.replace(/\{\{include (.+?)\.jade\}\}/g,function(r,r2){
                      var filename = path.join(path.dirname(path.join(config.demo_path, req.params[0])),r2+".jade");
-                     var html = jade.render(fs.readFileSync(filename,'utf-8'), {filename:filename});
+                     var html = jade.render(fs.readFileSync(filename,'utf-8'), {filename:filename,pretty:true});
                      return html
                   })
                  content=content.replace(/\{\{include (.+?)\.html\}\}/g,function(r,r2){
