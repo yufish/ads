@@ -6,14 +6,14 @@
 
     fs = require("fs");
 
-    module.exports = function(file, callback) {
+    module.exports = function(file,compress, callback) {
         var child, data, dirname, exec, filename;
         exec = require('child_process').exec;
         data = eval(fs.readFileSync(file, 'utf-8'));
         dirname = path.dirname(file);
         filename = path.basename(file);
         console.log(data);
-        return child = exec('cd ' + dirname + ';r.js -o ' + filename, function(error, stdout, stderr) {
+        return child = exec('cd ' + dirname + ';r.js -o ' + filename+(compress?'':' optimize=none'), function(error, stdout, stderr) {
             console.log('stdout: ' + stdout);
             console.log('stderr: ' + stderr);
             if (error !== null) {
