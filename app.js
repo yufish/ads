@@ -52,6 +52,12 @@ app.configure(function() {
     //js 静态服务，支持压缩
     //
     app.get(/assets\/js\/(.*?)\.js/, require("./routes/js_route.js"));
+//requirejs 实时打包
+    app.get(/\/assets\/js-bigshop\/(.*?)\.r\.js/, require("./routes/requirebigshop_route.js"));
+
+    //js 静态服务，支持压缩
+    //
+    app.get(/assets\/js-bigshop\/(.*?)\.js/, require("./routes/jsbigshop_route.js"));
 
     //其他文件的静态服务
     app.get(/assets\/(.*)$/, function(req, res, next) {
