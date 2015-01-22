@@ -66,6 +66,7 @@ app.configure(function() {
         // var fileContent = fs.readFileSync(filePath, "utf-8")
         // res.header('Content-Type', content_type_inspector(filePath));
         // res.send(fileContent);
+        res.header('Access-Control-Allow-Origin', '*');
         res.sendfile(filePath)
     });
 
