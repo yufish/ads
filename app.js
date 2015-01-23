@@ -75,10 +75,12 @@ app.configure(function() {
 
     app.locals.pretty = true;
     app.all("*", function(req, res, next) {
+        res.header("Cache-Control", "max-age=0")
         return res.send("页面不存在", 404);
     });
     app.use(function(err, req, res, next) {
         console.trace(err);
+        res.header("Cache-Control", "max-age=0")
         return res.send(err.message, 404);
     });
     app.locals.moment = require('moment');
